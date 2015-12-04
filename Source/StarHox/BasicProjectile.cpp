@@ -26,9 +26,5 @@ void ABasicProjectile::OnHit(AActor* OtherActor, UPrimitiveComponent* OtherComp,
 {
 	// Only add impulse and destroy projectile if we hit a physics
 	// GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("hit registered!"));
-	if ((OtherActor != NULL) && (OtherActor != this) && (OtherComp != NULL))
-	{
-
-	}
 	Destroy();
 }

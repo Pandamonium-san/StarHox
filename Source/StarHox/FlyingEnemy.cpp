@@ -39,7 +39,7 @@ void AFlyingEnemy::NotifyHit(class UPrimitiveComponent* MyComp, class AActor* Ot
 {
 	Super::NotifyHit(MyComp, Other, OtherComp, bSelfMoved, HitLocation, HitNormal, NormalImpulse, Hit);
 
-	 GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Enemy hit!"));
+	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Enemy hit!"));
 	if (--Health <= 0)
 		Destroy();
 }

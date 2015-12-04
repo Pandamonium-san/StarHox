@@ -50,7 +50,7 @@ AStarHoxPawn::AStarHoxPawn()
 	TurnSpeed = 100.f;
 	MoveSpeed = 1200.f;
 	MaxSpeed = 2500.f;
-	MinSpeed = 500.f;
+	MinSpeed = 750.f;
 	CurrentForwardSpeed = 1000.f;
 
 	MuzzleOffset = FVector(0.f, 0.f, 0.f);
@@ -127,22 +127,27 @@ void AStarHoxPawn::ThrustInput(float Val)
 	// Is there no input?
 	bool bHasInput = !FMath::IsNearlyEqual(Val, 0.f);
 	float CurrentAcc;
+	float TargetConsumedBoost;
+	float ConsumedBoost;
+	float BoostModifier;
 	if (bHasInput && CurrentBoost > 0)
 	{
-		CurrentAcc = Val * Acceleration;
-		CurrentBoost -= 20 * GetWorld()->GetDeltaSeconds();
-		SpringArm->CameraLagMaxDistance = 400.f;
+		TargetConsumedBoost = 20 * GetWorld()->GetDeltaSeconds();
+		ConsumedBoost = FMath::Clamp(TargetConsumedBoost, 0.f, CurrentBoost);
+		BoostModifier = ConsumedBoost / TargetConsumedBoost * 2.f;
+		CurrentBoost -= ConsumedBoost;
+		SpringArm->CameraLagMaxDistance = FMath::FInterpTo(SpringArm->CameraLagMaxDistance, 400.f, GetWorld()->GetDeltaSeconds(), 2.f);
 	}
 	else
-	{
-		if (CurrentForwardSpeed > MinSpeed)
-			CurrentAcc = -0.5f * Acceleration;
-		else
-			CurrentAcc = Acceleration;
-		CurrentBoost = FMath::Clamp(CurrentBoost, 0.f, MaxBoost);
 		SpringArm->CameraLagMaxDistance = FMath::FInterpTo(SpringArm->CameraLagMaxDistance, 200.f, GetWorld()->GetDeltaSeconds(), 2.f);
-	}
+
+	if (CurrentForwardSpeed > MinSpeed)
+		CurrentAcc = (-1.f + BoostModifier) * Acceleration;
+	else
+		CurrentAcc = Acceleration;
+
 	CurrentBoost += 5 * GetWorld()->GetDeltaSeconds();
+	CurrentBoost = FMath::Clamp(CurrentBoost, 0.f, MaxBoost);
 	// Calculate new speed
 	float NewForwardSpeed = CurrentForwardSpeed + (GetWorld()->GetDeltaSeconds() * CurrentAcc);
 	// Clamp between MinSpeed and MaxSpeed
